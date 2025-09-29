@@ -2,29 +2,29 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import LoginPage from './components/LoginPage';
 import DashboardPage from './components/DashboardPage';
+import MainLayout from './components/MainLayout'; // 1. Importe o MainLayout
 import './App.css';
 
-// Função para verificar se há um token
-const isAuthenticated = () => {
-  return localStorage.getItem('token') !== null;
-};
+const isAuthenticated = () => localStorage.getItem('token') !== null;
 
-// O componente Rota Privada continua o mesmo
+// A PrivateRoute agora usa o MainLayout para "envelopar" o conteúdo
 const PrivateRoute = ({ children }) => {
-  return isAuthenticated() ? children : <Navigate to="/login" />;
+  if (!isAuthenticated()) {
+    return <Navigate to="/login" />;
+  }
+  return <MainLayout>{children}</MainLayout>;
 };
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Se o usuário tentar ir para /login mas já estiver logado,
-            será redirecionado para o /dashboard. Caso contrário, verá o LoginPage. */}
         <Route 
           path="/login" 
           element={isAuthenticated() ? <Navigate to="/dashboard" /> : <LoginPage />} 
         />
 
+        {/* Agora, todas as rotas protegidas ficam dentro do MainLayout */}
         <Route 
           path="/dashboard" 
           element={
@@ -34,7 +34,12 @@ function App() {
           } 
         />
         
-        {/* A rota padrão agora verifica a autenticação antes de redirecionar */}
+        {/* Adicione placeholders para as outras rotas */}
+        <Route path="/buscar" element={<PrivateRoute><h1>Página de Busca</h1></PrivateRoute>} />
+        <Route path="/cadastrar" element={<PrivateRoute><h1>Página de Cadastro</h1></PrivateRoute>} />
+        <Route path="/relatorios" element={<PrivateRoute><h1>Página de Relatórios</h1></PrivateRoute>} />
+        <Route path="/preferencias" element={<PrivateRoute><h1>Página de Preferências</h1></PrivateRoute>} />
+
         <Route 
           path="*" 
           element={<Navigate to={isAuthenticated() ? "/dashboard" : "/login"} />} 
