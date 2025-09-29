@@ -233,8 +233,6 @@ def buscar_funcionarios(current_user):
 
 # 5. Execução da aplicação
 if __name__ == "__main__":
-    url = "file://" + os.path.realpath("../frontend/index.html")
-    webbrowser.open(url)
 
     with app.app_context():
         db.create_all()
