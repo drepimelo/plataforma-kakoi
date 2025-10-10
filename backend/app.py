@@ -9,33 +9,37 @@ from functools import wraps
 import webbrowser
 import os
 
-
-# 1. Inicialização do Flask e configuração do banco de dados
 app = Flask(__name__)
-CORS(app) # 2. Habilite o CORS para toda a sua aplicação
+CORS(app)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# 2. Inicialização do SQLAlchemy
+
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 
-# 3. Definição do Modelo (tabela) de Funcionário
+
 class Funcionario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome_completo = db.Column(db.String(200), nullable=False)
     cpf = db.Column(db.String(11), unique=True, nullable=False) 
     matricula = db.Column(db.String(20), unique=True, nullable=True) 
     cargo = db.Column(db.String(100), nullable=False)
-    tipo_vinculo = db.Column(db.String(50), nullable=False) 
+    tipo_vinculo = db.Column(db.String(50), nullable=True) 
     situacao = db.Column(db.String(50), nullable=False)
-    # NOVO CAMPO - O mais importante para o objetivo principal!
-    localizacao_fisica = db.Column(db.String(300), nullable=True) # Campo de texto para descrever a localização 
+    localizacao_fisica = db.Column(db.String(300), nullable=False)
+
+   
     pcd = db.Column(db.Boolean, default=False)
     readaptado = db.Column(db.Boolean, default=False)
     data_admissao = db.Column(db.Date, nullable=False)
     data_desligamento = db.Column(db.Date, nullable=True)
+
+    cid = db.Column(db.String(50), nullable=True)
+    data_readaptacao = db.Column(db.Date, nullable=True)
+    data_aposentadoria = db.Column(db.Date, nullable=True)
+    dodf_aposentadoria = db.Column(db.String(100), nullable=True)
 
     def to_dict(self):
         return {
@@ -46,28 +50,31 @@ class Funcionario(db.Model):
             'cargo': self.cargo,
             'tipo_vinculo': self.tipo_vinculo,
             'situacao': self.situacao,
-            'localizacao_fisica': self.localizacao_fisica, # NOVO CAMPO
+            'localizacao_fisica': self.localizacao_fisica,
+            'data_admissao': self.data_admissao.isoformat() if self.data_admissao else None,
             'pcd': self.pcd,
             'readaptado': self.readaptado,
-            'data_admissao': self.data_admissao.isoformat() if self.data_admissao else None,
-            'data_desligamento': self.data_desligamento.isoformat() if self.data_desligamento else None
+            'data_desligamento': self.data_desligamento.isoformat() if self.data_desligamento else None,
+            'cid': self.cid,
+            'data_readaptacao': self.data_readaptacao.isoformat() if self.data_readaptacao else None,
+            'data_aposentadoria': self.data_aposentadoria.isoformat() if self.data_aposentadoria else None,
+            'dodf_aposentadoria': self.dodf_aposentadoria
         }
 
     def __repr__(self):
         return f"<Funcionario {self.nome_completo}>"
-# --- NOSSO NOVO MODELO DE USUÁRIO ---    
+  
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    # A senha terá um hash de 60 caracteres
     password_hash = db.Column(db.String(60), nullable=False)
-    # Outros campos do design
     cargo = db.Column(db.String(100), nullable=True)
     instituicao = db.Column(db.String(100), nullable=True)
 
     def __repr__(self):
         return f'<User {self.email}>'
-    
+
+
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -91,14 +98,18 @@ def token_required(f):
         return f(current_user, *args, **kwargs)
     return decorated
 
-
-# 4. Definição das Rotas da API (CRUD)
+def format_date(date_string):
+    if date_string:
+        try:
+            return datetime.datetime.strptime(date_string, '%Y-%m-%d').date()
+        except ValueError:
+            return None
+    return None
 
 @app.route("/")
 def home():
     return "App funcionando! Use as rotas /funcionarios para CRUD."
 
-# ... (as rotas POST, GET, PUT, DELETE que já fizemos continuam aqui)
 @app.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
@@ -155,7 +166,12 @@ def login():
 @token_required
 def criar_funcionario(current_user):
     dados = request.json
-    data_admissao_obj = datetime.datetime.strptime(dados['data_admissao'], '%Y-%m-%d').date()
+
+    data_admissao = format_date(dados.get('data_admissao'))
+    data_readaptacao = format_date(dados.get('data_readaptacao'))
+    data_aposentadoria = format_date(dados.get('data_aposentadoria'))
+    data_desligamento = format_date(dados.get('data_desligamento'))
+
     novo_funcionario = Funcionario(
         nome_completo=dados['nome_completo'],
         cpf=dados['cpf'],
@@ -163,13 +179,22 @@ def criar_funcionario(current_user):
         cargo=dados['cargo'],
         tipo_vinculo=dados['tipo_vinculo'],
         situacao=dados['situacao'],
-        localizacao_fisica=dados.get('localizacao_fisica'), # NOVO CAMPO
+        localizacao_fisica=dados.get('localizacao_fisica'),
+        data_admissao=data_admissao,
+        cid=dados.get('cid'),
+        data_readaptacao=data_readaptacao,
+        data_aposentadoria=data_aposentadoria,
+        dodf_aposentadoria=dados.get('dodf_aposentadoria'),
+        data_desligamento=data_desligamento,
+
+
         pcd=dados.get('pcd', False),
-        readaptado=dados.get('readaptado', False),
-        data_admissao=data_admissao_obj
+        readaptado=dados.get('readaptado', False)
     )
+
     db.session.add(novo_funcionario)
     db.session.commit()
+
     return jsonify(novo_funcionario.to_dict()), 201
 
 @app.route("/funcionarios", methods=['GET'])
@@ -186,12 +211,37 @@ def buscar_funcionario_por_id(current_user, id_funcionario):
 
 @app.route("/funcionarios/<int:id_funcionario>", methods=['PUT'])
 def atualizar_funcionario(current_user, id_funcionario):
+    
     funcionario = Funcionario.query.get_or_404(id_funcionario)
-    dados = request.json
+    dados = request.get_json()
+
+    # Atualiza cada campo com os novos dados, mantendo o valor antigo se um novo não for fornecido
     funcionario.nome_completo = dados.get('nome_completo', funcionario.nome_completo)
+    funcionario.cpf = dados.get('cpf', funcionario.cpf)
+    funcionario.matricula = dados.get('matricula', funcionario.matricula)
     funcionario.cargo = dados.get('cargo', funcionario.cargo)
+    funcionario.tipo_vinculo = dados.get('tipo_vinculo', funcionario.tipo_vinculo)
     funcionario.situacao = dados.get('situacao', funcionario.situacao)
-    funcionario.localizacao_fisica = dados.get('localizacao_fisica', funcionario.localizacao_fisica) # NOVO CAMPO
+    funcionario.localizacao_fisica = dados.get('localizacao_fisica', funcionario.localizacao_fisica)
+    
+    # Atualiza campos booleanos
+    funcionario.pcd = dados.get('pcd', funcionario.pcd)
+    funcionario.readaptado = dados.get('readaptado', funcionario.readaptado)
+
+    # Atualiza os novos campos
+    funcionario.cid = dados.get('cid', funcionario.cid)
+    funcionario.dodf_aposentadoria = dados.get('dodf_aposentadoria', funcionario.dodf_aposentadoria)
+
+    # Atualiza as datas usando nossa função auxiliar
+    if 'data_admissao' in dados:
+        funcionario.data_admissao = format_date(dados.get('data_admissao'))
+    if 'data_readaptacao' in dados:
+        funcionario.data_readaptacao = format_date(dados.get('data_readaptacao'))
+    if 'data_aposentadoria' in dados:
+        funcionario.data_aposentadoria = format_date(dados.get('data_aposentadoria'))
+    if 'data_desligamento' in dados:
+        funcionario.data_desligamento = format_date(dados.get('data_desligamento'))
+    
     db.session.commit()
     return jsonify(funcionario.to_dict())
 
@@ -202,7 +252,6 @@ def deletar_funcionario(current_user, id_funcionario):
     db.session.commit()
     return jsonify({'mensagem': 'Funcionário deletado com sucesso!'})
 
-# --- ROTA NOVA E MELHORADA PARA BUSCA ---
 @app.route("/funcionarios/buscar", methods=['GET'])
 @token_required
 def buscar_funcionarios(current_user):
@@ -231,7 +280,7 @@ def buscar_funcionarios(current_user):
     return jsonify([funcionario.to_dict() for funcionario in resultados])
 
 
-# 5. Execução da aplicação
+
 if __name__ == "__main__":
 
     with app.app_context():

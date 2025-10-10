@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import LoginPage from './components/LoginPage';
+import RegisterPage from './components/RegisterPage';
 import DashboardPage from './components/DashboardPage';
 import MainLayout from './components/MainLayout'; // 1. Importe o MainLayout
 import './App.css';
@@ -19,6 +20,13 @@ function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/register" element={isAuthenticated() ? <Navigate to="/dashboard" /> : <RegisterPage/>} />
+
+        {/* Rotas protegidas */}
+        <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
+        <Route path="/buscar" element={<PrivateRoute><h1>Página de Busca</h1></PrivateRoute>} />
+
+
         <Route 
           path="/login" 
           element={isAuthenticated() ? <Navigate to="/dashboard" /> : <LoginPage />} 

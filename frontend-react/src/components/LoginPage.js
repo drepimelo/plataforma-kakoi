@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom'; 
 import "./LoginPage.css"; // Importa nosso arquivo de estilo
 
 function LoginPage() {
@@ -86,7 +86,7 @@ function LoginPage() {
           </button>
 
           <div className="form-footer">
-            <a href="#">Cadastrar</a><br></br>
+            <Link to="/register">Cadastrar</Link>
             <a href="#">(Esqueci minha senha)</a>
           </div>
         </form>
