@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import ProfilePage from './components/ProfilePage';
 
 // Importando todos os nossos componentes de página
 import LoginPage from './components/LoginPage';
@@ -53,6 +54,11 @@ function App() {
           element={<PrivateRoute><EmployeeRegisterPage /></PrivateRoute>} 
         />
         
+        <Route 
+          path="/funcionarios/perfil/:id" 
+          element={<PrivateRoute><ProfilePage /></PrivateRoute>} 
+        />
+
         {/* Placeholders para as rotas futuras */}
         <Route path="/relatorios" element={<PrivateRoute><h1>Página de Relatórios</h1></PrivateRoute>} />
         <Route path="/preferencias" element={<PrivateRoute><h1>Página de Preferências</h1></PrivateRoute>} />

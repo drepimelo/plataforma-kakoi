@@ -26,7 +26,7 @@ class Funcionario(db.Model):
     cpf = db.Column(db.String(11), unique=True, nullable=False) 
     matricula = db.Column(db.String(20), unique=True, nullable=True) 
     cargo = db.Column(db.String(100), nullable=False)
-    tipo_vinculo = db.Column(db.String(50), nullable=True) 
+    tipo_vinculo = db.Column(db.String(50), nullable=False) 
     situacao = db.Column(db.String(50), nullable=False)
     localizacao_fisica = db.Column(db.String(300), nullable=False)
 

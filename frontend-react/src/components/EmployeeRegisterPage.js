@@ -9,6 +9,7 @@ function EmployeeRegisterPage() {
     cpf: '',
     matricula: '',
     cargo: '',
+    tipo_vinculo: 'Efetivo',
     situacao: 'Ativo', // Valor padrão
     localizacao_fisica: '',
     data_admissao: '',
@@ -100,6 +101,18 @@ function EmployeeRegisterPage() {
             <label htmlFor="cargo">Cargo*</label>
             <input type="text" id="cargo" name="cargo" value={formData.cargo} onChange={handleChange} required />
           </div>
+
+          <div className="form-group">
+        <label htmlFor="tipo_vinculo">Tipo de Vínculo*</label>
+        <select id="tipo_vinculo" name="tipo_vinculo" value={formData.tipo_vinculo} onChange={handleChange} required>
+          <option value="Efetivo">Efetivo</option>
+          <option value="Temporário">Temporário</option>
+          <option value="Estagiário">Estagiário</option>
+          <option value="Voluntário">Voluntário</option>
+          <option value="Terceirizado">Terceirizado</option>
+        </select>
+      </div>
+
           <div className="form-group">
             <label htmlFor="situacao">Situação*</label>
             <select id="situacao" name="situacao" value={formData.situacao} onChange={handleChange} required>
@@ -113,8 +126,8 @@ function EmployeeRegisterPage() {
 
         <div className="form-row">
            <div className="form-group">
-            <label htmlFor="data_admissao">Data de admissão</label>
-            <input type="date" id="data_admissao" name="data_admissao" value={formData.data_admissao} onChange={handleChange} />
+            <label htmlFor="data_admissao">Data de admissão*</label>
+            <input type="date" id="data_admissao" name="data_admissao" value={formData.data_admissao} onChange={handleChange} required/>
           </div>
           <div className="form-group">
             <label htmlFor="localizacao_fisica">Localização física do arquivo*</label>

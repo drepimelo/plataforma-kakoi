@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './SearchPage.css';
 
+
 function SearchPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [results, setResults] = useState([]);
@@ -43,7 +44,7 @@ function SearchPage() {
   };
 
   const viewProfile = (employeeId) => {
-    alert(`Funcionalidade "Ver Perfil" para o ID: ${employeeId} ainda não implementada.`);
+    navigate(`/funcionarios/perfil/${employeeId}`);
   };
 
   return (
