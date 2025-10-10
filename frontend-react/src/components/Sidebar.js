@@ -17,8 +17,7 @@ function Sidebar() {
       <nav className="sidebar-nav">
         {/* NavLink adiciona uma classe 'active' ao link da página atual */}
         <NavLink to="/dashboard">Meu painel</NavLink>
-        <NavLink to="/buscar">Buscar funcionários</NavLink>
-        <NavLink to="/cadastrar">Cadastrar funcionários</NavLink>
+        <NavLink to="/funcionarios">Funcionários</NavLink>
         <NavLink to="/relatorios">Relatórios</NavLink>
         <NavLink to="/preferencias">Preferências</NavLink>
       </nav>

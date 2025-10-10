@@ -1,0 +1,113 @@
+.search-page {
+  max-width: 900px;
+}
+
+.search-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px; /* Aumentei a margem para dar mais respiro */
+}
+
+.search-header h1 {
+  margin: 0 0 5px 0;
+}
+
+.search-header p {
+  margin: 0;
+  color: #666;
+}
+
+.btn-add-new {
+  padding: 10px 15px;
+  background-color: #28a745;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.search-bar-container {
+  display: flex;
+  margin-bottom: 30px;
+}
+
+.search-input {
+  flex-grow: 1;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px 0 0 4px;
+  font-size: 16px;
+}
+
+.search-button {
+  padding: 12px 20px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.error-message {
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.results-table thead tr {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.results-table th {
+  padding: 12px 15px;
+  text-align: left;
+  font-weight: bold;
+  color: #333;
+}
+
+.results-table tbody tr {
+  border-bottom: 1px solid #eee;
+}
+
+.results-table td {
+  padding: 12px 15px;
+}
+
+.results-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.results-table td[colSpan="4"] {
+  text-align: center;
+  padding: 20px;
+  color: #888;
+}
+
+.action-button {
+  padding: 8px 12px;
+  border: 1px solid #007bff;
+  background-color: transparent;
+  color: #007bff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.action-button:hover {
+  background-color: #007bff;
+  color: white;
+}

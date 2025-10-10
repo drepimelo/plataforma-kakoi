@@ -1,0 +1,60 @@
+.employee-register-page {
+  padding: 20px;
+}
+
+.employee-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* Espaçamento entre as linhas */
+}
+
+.form-row {
+  display: flex;
+  gap: 20px; /* Espaçamento entre os campos na mesma linha */
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* Faz com que os grupos ocupem o mesmo espaço */
+}
+
+.form-group.full-width {
+  flex-basis: 100%; /* Faz o grupo ocupar a largura total */
+}
+
+.form-group label {
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #555;
+}
+
+.form-group input,
+.form-group select {
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.employee-form hr {
+  border: none;
+  border-top: 1px solid #eee;
+  margin: 10px 0;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end; /* Alinha o botão à direita */
+}
+
+.submit-button {
+  padding: 12px 24px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+}
