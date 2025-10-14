@@ -91,8 +91,8 @@ function EmployeeRegisterPage() {
             <input type="text" id="cpf" name="cpf" value={formData.cpf} onChange={handleChange} required />
           </div>
           <div className="form-group">
-            <label htmlFor="matricula">Matrícula</label>
-            <input type="text" id="matricula" name="matricula" value={formData.matricula} onChange={handleChange} />
+            <label htmlFor="matricula">Matrícula*</label>
+            <input type="text" id="matricula" name="matricula" value={formData.matricula} onChange={handleChange} required/>
           </div>
         </div>
         

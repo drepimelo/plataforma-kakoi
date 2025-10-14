@@ -1,5 +1,9 @@
 .profile-page {
   max-width: 900px;
+  max-height: 90vh;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .back-link {

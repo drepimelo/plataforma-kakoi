@@ -1,13 +1,16 @@
+
+
 .sidebar {
   width: 250px;
-  background-color: #fff;
-  height: 100vh;
+  background-color: #F2F2F2;
+  height: 90vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
   position: fixed;
   left: 0;
-  top: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  border-radius: 0 30px 30px 0;
 }
 
 .sidebar-header {
@@ -29,23 +32,34 @@
   padding-top: 20px;
 }
 
+.sidebar-nav svg{
+  height: 1.2rem;
+  vertical-align: middle;
+  margin-right: 8px;
+  margin-top: -4px;
+}
+
 .sidebar-nav a {
   padding: 15px 20px;
   text-decoration: none;
-  color: #555;
+  color: #000000;
   display: block;
-  font-weight: bold;
+  margin: 6px 6px;
+  padding: 10px;
 }
 
+
 .sidebar-nav a:hover {
-  background-color: #f0f2f5;
+  background-color: #cecece;
+  border-radius: 36px;
 }
 
 /* O React Router adiciona a classe 'active' ao link da página atual */
 .sidebar-nav a.active {
-  background-color: #e6f2ff;
-  color: #007bff;
+  background-color: #4581DB;
+  color: #ffffff;
   border-right: 3px solid #007bff;
+  border-radius: 36px;
 }
 
 .sidebar-footer {
@@ -58,8 +72,15 @@
   border: 1px solid #ccc;
   background-color: transparent;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 24px;
   font-weight: bold;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.logout-button svg{
+  height: 16px;
+  vertical-align: middle;
+  margin-top: -4px;
 }
 
 .logout-button:hover {
