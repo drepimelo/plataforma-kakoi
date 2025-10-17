@@ -80,17 +80,23 @@ function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
+          <div className="actions">
+            <div className="buttons-container">
+              <button type="submit" className="login-button">
+                Entrar
+              </button>
 
-          <button type="submit" className="login-button">
-            Entrar
-          </button>
-
-          <div className="form-footer">
-            <Link to="/register">Cadastrar</Link>
-            <a href="#">(Esqueci minha senha)</a>
+              <Link to="/register"><button type="submit" className="signup-button">
+                Cadastrar
+              </button></Link>
+            </div>
+            <a href="/forgot-password" className="forgot-password-link">
+              Esqueci minha senha
+            </a>
           </div>
         </form>
       </div>
+      
     </div>
   );
 }
