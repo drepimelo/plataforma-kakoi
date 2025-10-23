@@ -43,30 +43,32 @@ function ReportsPage() {
 
     fetchStats();
   }, []); // O array vazio [] significa que isso roda apenas uma vez
-const createChartData = (dataObject) => {
+const createChartData = (dataObject, chartType = 'bar') => {
     if (!dataObject) {
       return null;
     }
     
     const labels = Object.keys(dataObject);
     const data = Object.values(dataObject);
+    const dataset = {
+      label: 'Quantidade',
+      data: data,
+      backgroundColor: [
+        'rgba(0, 123, 255, 0.8)',
+        'rgba(23, 162, 184, 0.8)',
+        'rgba(40, 167, 69, 0.8)',
+        'rgba(255, 193, 7, 0.8)',
+        'rgba(220, 53, 69, 0.8)',
+      ],
+      borderWidth: 1,
+    };
+    if (chartType === 'bar') {
+      dataset.borderRadius = 36; 
+    }
 
     return {
       labels: labels,
-      datasets: [
-        {
-          label: 'Quantidade',
-          data: data,
-          backgroundColor: [
-            'rgba(0, 123, 255, 0.8)',
-            'rgba(23, 162, 184, 0.8)',
-            'rgba(40, 167, 69, 0.8)',
-            'rgba(255, 193, 7, 0.8)',
-            'rgba(220, 53, 69, 0.8)',
-          ],
-          borderWidth: 1,
-        },
-      ],
+      datasets: [dataset], // Use o dataset que acabamos de montar
     };
   };
 
@@ -209,9 +211,7 @@ const vinculoChartData = createChartData(statsData.por_vinculo);
             size: 14
           }
         },
-        border: {
-            radius: 24
-        },
+        
         grid: {
           display: false // Esconde as linhas de grade verticais
         }

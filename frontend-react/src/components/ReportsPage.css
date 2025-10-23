@@ -20,7 +20,7 @@
 .stats-cards {
   display: flex;
   gap: 20px;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   width: fit-content;
 }
 
@@ -48,23 +48,26 @@
 }
 
 .charts-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 30px;
+display: flex; /* Mude de 'grid' para 'flex' */
+  flex-wrap: wrap; /* Permite que os gráficos quebrem para a próxima linha */
+  justify-content: flex-start; /* Alinha os gráficos à esquerda */
+  gap: 20px; /* Mantém o espaçamento que tínhamos */
+  margin-bottom: 20px;
 }
 
 .chart-container {
-  background-color: #fff;
+background-color: #fff;
   padding: 20px;
-  border-radius: 24px;
+  border-radius: 36px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  /* Limita o tamanho do gráfico para evitar que fique gigante */
-  max-width: 400px; 
-  margin: 0 auto;
-
+  /* Agora definimos um tamanho máximo e permitimos que ele encolha */
+  max-width: 300px; 
+  flex-grow: 1; /* Permite que o container cresça se houver espaço */
+  flex-basis: 300px; /* Define um tamanho base antes de crescer/encolher */
 }
 
 .chart-container h3{
+    padding: 5px;
     margin-top: 0;
 }
 
@@ -73,6 +76,7 @@
 }
 
 .report-actions {
+    z-index: 2;
   display: flex;
   justify-content: flex-end; /* Alinha o botão à direita */
   margin: 40px 20px 20px 20px;
