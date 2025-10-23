@@ -1,14 +1,21 @@
-.profile-page {
-  max-width: 900px;
-  max-height: 90vh;
+.profile-page{
+  margin-top: 1.5vh;
+  max-width: 90vw;
+  height: 80vh;
   right: 0;
   top: 50%;
+  background-color: #4581DB;
+  padding: 50px;
+  border-radius: 56px;
 }
 
 .back-link {
   display: inline-block;
   margin-bottom: 20px;
   color: #007bff;
+  background-color: white;
+  padding: 10px 15px;
+  border-radius: 16px;
   text-decoration: none;
   font-weight: bold;
 }
@@ -26,7 +33,7 @@
 .profile-header p {
   margin: 5px 0 0 0;
   font-size: 18px;
-  color: #666;
+  color: #242424;
 }
 
 .profile-grid {
@@ -38,7 +45,7 @@
 .profile-card {
   background-color: #fff;
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 24px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   animation: fadeIn 0.5s ease-out forwards;
 }
@@ -82,13 +89,27 @@
 }
 
 .profile-actions .action-button.edit {
-  background-color: #007bff;
-  color: white;
+  border-radius: 12px;
+  background-color: #97C0FF;
+  color: #114BA3;
+}
+
+.profile-actions:hover .action-button.edit:hover {
+  border-radius: 12px;
+  background-color: #114BA3;
+  color: #97C0FF;
 }
 
 .profile-actions .action-button.delete {
-  background-color: #dc3545;
-  color: white;
+  border-radius: 12px;
+  background-color: #ffffff;
+  color: rgb(255, 0, 0);
+}
+
+.profile-actions:hover .action-button.delete:hover {
+  border-radius: 12px;
+  background-color:rgb(255, 0, 0);
+  color: #ffffff;
 }
 
 

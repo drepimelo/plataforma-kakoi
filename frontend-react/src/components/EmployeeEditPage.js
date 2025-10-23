@@ -1,29 +1,38 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './EmployeeRegisterPage.css'; // Nosso novo arquivo de estilo
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import './EmployeeRegisterPage.css'; // Reutilizando o estilo
 
-function EmployeeRegisterPage() {
-  // Um único estado para guardar todos os dados do formulário
-  const [formData, setFormData] = useState({
-    nome_completo: '',
-    cpf: '',
-    matricula: '',
-    cargo: '',
-    tipo_vinculo: 'Efetivo',
-    situacao: 'Ativo', // Valor padrão
-    localizacao_fisica: '',
-    data_admissao: '',
-    pcd: false,
-    readaptado: false,
-    cid: '',
-    data_readaptacao: '',
-    data_aposentadoria: '',
-    dodf_aposentadoria: ''
-  });
-  const [error, setError] = useState('');
+function EmployeeEditPage() {
+  const { id } = useParams(); // Pega o ID do funcionário da URL
   const navigate = useNavigate();
+  const [formData, setFormData] = useState(null); // Inicia como nulo até carregarmos os dados
+  const [error, setError] = useState('');
 
-  // Função para atualizar o estado quando qualquer campo muda
+  // 1. useEffect para buscar os dados do funcionário quando a página carregar
+  useEffect(() => {
+    const fetchEmployeeData = async () => {
+      const token = localStorage.getItem('token');
+      try {
+        const response = await fetch(`http://127.0.0.1:5000/funcionarios/${id}`, {
+          headers: { 'x-access-token': token },
+        });
+        if (!response.ok) throw new Error('Funcionário não encontrado.');
+        
+        const data = await response.json();
+        // Formata as datas para o formato YYYY-MM-DD que o input[type=date] espera
+        Object.keys(data).forEach(key => {
+            if (key.startsWith('data_') && data[key]) {
+                data[key] = data[key].split('T')[0];
+            }
+        });
+        setFormData(data);
+      } catch (err) {
+        setError(err.message);
+      }
+    };
+    fetchEmployeeData();
+  }, [id]);
+
 const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
@@ -47,55 +56,51 @@ const handleChange = (e) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
-    // 1. Pega o token do localStorage
     const token = localStorage.getItem('token');
-    if (!token) {
-      setError('Você não está autenticado. Faça o login novamente.');
-      // O ideal seria redirecionar para o login
-      // navigate('/login');
-      return;
-    }
-
+    
     try {
-      // 2. Faz a chamada à API, incluindo o token no cabeçalho
-      const response = await fetch('http://127.0.0.1:5000/funcionarios', {
-        method: 'POST',
+      const response = await fetch(`http://127.0.0.1:5000/funcionarios/${id}`, {
+        method: 'PUT', // Usando o método PUT para atualizar
         headers: {
           'Content-Type': 'application/json',
-          'x-access-token': token // <-- O CRACHÁ DE AUTENTICAÇÃO!
+          'x-access-token': token,
         },
         body: JSON.stringify(formData),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        // Mostra o erro que o backend enviou
-        setError(data.message || 'Ocorreu um erro ao cadastrar o funcionário.');
-        return;
+        const data = await response.json();
+        throw new Error(data.message || 'Erro ao atualizar funcionário.');
       }
 
-      // 3. Se deu tudo certo, mostra uma mensagem de sucesso e redireciona
-      alert('Funcionário cadastrado com sucesso!');
-      navigate('/buscar'); // Leva o usuário para a página de busca
-
+      alert('Funcionário atualizado com sucesso!');
+      navigate(`/funcionarios/perfil/${id}`); // Volta para a página de perfil
     } catch (err) {
-      setError('Não foi possível conectar ao servidor.');
-      console.error('Erro de conexão:', err);
+      setError(err.message);
     }
   };
 
+  // Mostra uma mensagem de carregamento enquanto busca os dados
+  if (!formData) {
+    return <div>Carregando dados do funcionário...</div>;
+  }
+
   return (
     <div className="employee-register-page">
-      <h1>Cadastrar funcionário</h1>
+      <h1>Editar funcionário</h1>
+      {error && <p className="error-message">{error}</p>}
       <form onSubmit={handleSubmit} className="employee-form">
+        {/* O formulário é idêntico ao de cadastro, mas os campos são preenchidos pelos dados carregados */}
+        {/* Exemplo para o campo nome: */}
         <div className="form-row">
           <div className="form-group full-width">
             <label htmlFor="nome_completo">Nome*</label>
             <input type="text" id="nome_completo" name="nome_completo" value={formData.nome_completo} onChange={handleChange} required />
           </div>
         </div>
+        
+        {/* ... cole aqui o resto de TODOS os campos do formulário de EmployeeRegisterPage.js ... */}
+        {/* Exatamente o mesmo JSX, eles serão preenchidos pelo estado 'formData' */}
 
         <div className="form-row">
           <div className="form-group">
@@ -103,8 +108,8 @@ const handleChange = (e) => {
             <input type="text" id="cpf" name="cpf" value={formData.cpf} onChange={handleChange} required />
           </div>
           <div className="form-group">
-            <label htmlFor="matricula">Matrícula*</label>
-            <input type="text" id="matricula" name="matricula" value={formData.matricula} onChange={handleChange} required/>
+            <label htmlFor="matricula">Matrícula</label>
+            <input type="text" id="matricula" name="matricula" value={formData.matricula} onChange={handleChange} />
           </div>
         </div>
         
@@ -113,18 +118,19 @@ const handleChange = (e) => {
             <label htmlFor="cargo">Cargo*</label>
             <input type="text" id="cargo" name="cargo" value={formData.cargo} onChange={handleChange} required />
           </div>
-
           <div className="form-group">
-        <label htmlFor="tipo_vinculo">Tipo de Vínculo*</label>
-        <select id="tipo_vinculo" name="tipo_vinculo" value={formData.tipo_vinculo} onChange={handleChange} required>
-          <option value="Efetivo">Efetivo</option>
-          <option value="Temporário">Temporário</option>
-          <option value="Estagiário">Estagiário</option>
-          <option value="Voluntário">Voluntário</option>
-          <option value="Terceirizado">Terceirizado</option>
-        </select>
-      </div>
+            <label htmlFor="tipo_vinculo">Tipo de Vínculo*</label>
+            <select id="tipo_vinculo" name="tipo_vinculo" value={formData.tipo_vinculo} onChange={handleChange} required>
+              <option value="Efetivo">Efetivo</option>
+              <option value="Temporário">Temporário</option>
+              <option value="Estagiário">Estagiário</option>
+              <option value="Voluntário">Voluntário</option>
+              <option value="Terceirizado">Terceirizado</option>
+            </select>
+          </div>
+        </div>
 
+        <div className="form-row">
           <div className="form-group">
             <label htmlFor="situacao">Situação*</label>
             <select id="situacao" name="situacao" value={formData.situacao} onChange={handleChange} required>
@@ -134,17 +140,17 @@ const handleChange = (e) => {
               <option value="Licenciado">Licenciado</option>
             </select>
           </div>
-        </div>
-
-        <div className="form-row">
            <div className="form-group">
             <label htmlFor="data_admissao">Data de admissão*</label>
             <input type="date" id="data_admissao" name="data_admissao" value={formData.data_admissao} onChange={handleChange} required/>
           </div>
-          <div className="form-group">
-            <label htmlFor="localizacao_fisica">Localização física do arquivo*</label>
-            <input type="text" id="localizacao_fisica" name="localizacao_fisica" value={formData.localizacao_fisica} onChange={handleChange} required />
-          </div>
+        </div>
+        
+        <div className="form-row">
+            <div className="form-group full-width">
+                <label htmlFor="localizacao_fisica">Localização física do arquivo*</label>
+                <input type="text" id="localizacao_fisica" name="localizacao_fisica" value={formData.localizacao_fisica} onChange={handleChange} required />
+            </div>
         </div>
 
         <hr />
@@ -191,11 +197,11 @@ const handleChange = (e) => {
         </div>
 
         <div className="form-actions">
-          <button type="submit" className="submit-button">Cadastrar</button>
+          <button type="submit" className="submit-button">Salvar Alterações</button>
         </div>
       </form>
     </div>
   );
 }
 
-export default EmployeeRegisterPage;
+export default EmployeeEditPage;

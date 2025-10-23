@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Date
+from sqlalchemy import Date, or_, func
 import datetime
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
@@ -8,6 +8,9 @@ import jwt
 from functools import wraps
 import webbrowser
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
@@ -210,6 +213,7 @@ def buscar_funcionario_por_id(current_user, id_funcionario):
     return jsonify(funcionario.to_dict())
 
 @app.route("/funcionarios/<int:id_funcionario>", methods=['PUT'])
+@token_required
 def atualizar_funcionario(current_user, id_funcionario):
     
     funcionario = Funcionario.query.get_or_404(id_funcionario)
@@ -246,6 +250,7 @@ def atualizar_funcionario(current_user, id_funcionario):
     return jsonify(funcionario.to_dict())
 
 @app.route("/funcionarios/<int:id_funcionario>", methods=['DELETE'])
+@token_required
 def deletar_funcionario(current_user, id_funcionario):
     funcionario = Funcionario.query.get_or_404(id_funcionario)
     db.session.delete(funcionario)
@@ -256,30 +261,66 @@ def deletar_funcionario(current_user, id_funcionario):
 @token_required
 def buscar_funcionarios(current_user):
     # Pegamos os argumentos da URL, ex: ?nome=Maria
-    nome = request.args.get('nome')
-    cpf = request.args.get('cpf')
-    matricula = request.args.get('matricula')
+    termo_busca = request.args.get('q')
 
     # Começamos com uma consulta que pega todos os funcionários
     query = Funcionario.query
 
     # E agora aplicamos os filtros, se eles foram fornecidos
-    if nome:
-        # .ilike() faz uma busca que não diferencia maiúsculas/minúsculas
-        # os '%' são coringas, significam "qualquer coisa antes ou depois"
-        query = query.filter(Funcionario.nome_completo.ilike(f"%{nome}%"))
-    
-    if cpf:
-        query = query.filter_by(cpf=cpf)
-    
-    if matricula:
-        query = query.filter_by(matricula=matricula)
+    if termo_busca:
+        query = query.filter(
+            or_(
+                Funcionario.nome_completo.ilike(f"%{termo_busca}%"),
+                Funcionario.cpf.ilike(f"%{termo_busca}%"),
+                Funcionario.matricula.ilike(f"%{termo_busca}%")
+            )
+        )
     
     # Executamos a consulta final e retornamos os resultados
     resultados = query.all()
     return jsonify([funcionario.to_dict() for funcionario in resultados])
 
+@app.route("/funcionarios/estatisticas", methods=['GET'])
+@token_required
+def get_estatisticas(current_user):
+    try:
+        # 1. Total de Funcionários
+        total_funcionarios = Funcionario.query.count()
 
+        # 2. Contagem por Tipo de Vínculo
+        # Isso agrupa os funcionários pelo campo 'tipo_vinculo',
+        # conta quantos há em cada grupo e retorna uma lista de tuplas.
+        # Ex: [('Efetivo', 80), ('Temporário', 62)]
+        contagem_vinculo_query = db.session.query(
+            Funcionario.tipo_vinculo, 
+            func.count(Funcionario.id)
+        ).group_by(Funcionario.tipo_vinculo).all()
+
+        # Converte a lista de tuplas em um dicionário mais fácil de usar
+        # Ex: {'Efetivo': 80, 'Temporário': 62}
+        contagem_vinculo = {vinculo: count for vinculo, count in contagem_vinculo_query}
+
+        # 3. Contagem por Situação (Ativos/Inativos)
+        # Mesma lógica, mas agrupando por 'situacao'
+        contagem_situacao_query = db.session.query(
+            Funcionario.situacao, 
+            func.count(Funcionario.id)
+        ).group_by(Funcionario.situacao).all()
+        
+        contagem_situacao = {situacao: count for situacao, count in contagem_situacao_query}
+
+        # 4. Monta o objeto de resposta
+        estatisticas = {
+            'total_funcionarios': total_funcionarios,
+            'por_vinculo': contagem_vinculo,
+            'por_situacao': contagem_situacao
+        }
+        
+        return jsonify(estatisticas), 200
+
+    except Exception as e:
+        # Captura qualquer erro que possa acontecer durante a consulta
+        return jsonify({'message': 'Erro ao calcular estatísticas', 'error': str(e)}), 500
 
 if __name__ == "__main__":
 

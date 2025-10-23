@@ -42,7 +42,7 @@ function SearchPage() {
     }
 
     try {
-      const response = await fetch(`http://127.0.0.1:5000/funcionarios/buscar?nome=${searchTerm}`, {
+      const response = await fetch(`http://127.0.0.1:5000/funcionarios/buscar?q=${searchTerm}`, {
         headers: {
           'x-access-token': token,
         },

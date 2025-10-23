@@ -9,6 +9,8 @@ import RegisterPage from './components/RegisterPage';
 import DashboardPage from './components/DashboardPage';
 import SearchPage from './components/SearchPage';
 import EmployeeRegisterPage from './components/EmployeeRegisterPage';
+import EmployeeEditPage from './components/EmployeeEditPage';
+import ReportsPage from './components/ReportsPage';
 
 // Importando o componente de Layout
 import MainLayout from './components/MainLayout';
@@ -91,8 +93,13 @@ function App() {
               element={<PrivateRoute><ProfilePage /></PrivateRoute>} 
             />
 
+            <Route 
+              path="/funcionarios/editar/:id" 
+              element={<PrivateRoute><EmployeeEditPage /></PrivateRoute>} 
+            />
+            <Route path="/relatorios" element={<PrivateRoute><ReportsPage /></PrivateRoute>} />
             {/* Placeholders para as rotas futuras */}
-            <Route path="/relatorios" element={<PrivateRoute><h1>Página de Relatórios</h1></PrivateRoute>} />
+
             <Route path="/preferencias" element={<PrivateRoute><h1>Página de Preferências</h1></PrivateRoute>} />
 
             {/* Rota "Catch-all": Redireciona para o local correto */}
