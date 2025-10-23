@@ -1,9 +1,7 @@
 .search-page {
   margin-top: 10px;
-  justify-self: end;
   max-height: 90vh;
-  border-radius: 52px;
-  width: 75vw;
+  border-radius: 56px;
   height: 80vh;
   padding: 5vh 3vw;
   background-color: #4581DB;

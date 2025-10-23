@@ -3,6 +3,6 @@
 
 body {
     margin: 0;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'DM Sans', sans-serif !important; 
     background-color: #ffffff;
 }

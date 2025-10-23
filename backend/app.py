@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Date, or_, func
 import datetime
+from datetime import date
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 import jwt
@@ -284,36 +285,54 @@ def buscar_funcionarios(current_user):
 @token_required
 def get_estatisticas(current_user):
     try:
-        # 1. Total de Funcionários
+        # 1. Total de Funcionários (já tínhamos)
         total_funcionarios = Funcionario.query.count()
 
-        # 2. Contagem por Tipo de Vínculo
-        # Isso agrupa os funcionários pelo campo 'tipo_vinculo',
-        # conta quantos há em cada grupo e retorna uma lista de tuplas.
-        # Ex: [('Efetivo', 80), ('Temporário', 62)]
+        # 2. Contagem por Tipo de Vínculo (já tínhamos)
         contagem_vinculo_query = db.session.query(
             Funcionario.tipo_vinculo, 
             func.count(Funcionario.id)
         ).group_by(Funcionario.tipo_vinculo).all()
-
-        # Converte a lista de tuplas em um dicionário mais fácil de usar
-        # Ex: {'Efetivo': 80, 'Temporário': 62}
         contagem_vinculo = {vinculo: count for vinculo, count in contagem_vinculo_query}
 
-        # 3. Contagem por Situação (Ativos/Inativos)
-        # Mesma lógica, mas agrupando por 'situacao'
+        # 3. Contagem por Situação (já tínhamos)
         contagem_situacao_query = db.session.query(
             Funcionario.situacao, 
             func.count(Funcionario.id)
         ).group_by(Funcionario.situacao).all()
-        
         contagem_situacao = {situacao: count for situacao, count in contagem_situacao_query}
 
-        # 4. Monta o objeto de resposta
+        # --- NOVO CÁLCULO: TEMPO MÉDIO DE SERVIÇO ---
+        # Vamos calcular a diferença em dias entre hoje e a data de admissão
+        # (ou data de desligamento, se o funcionário estiver inativo)
+
+        # Pega a data de hoje
+        hoje = date.today()
+
+        # Seleciona todos os funcionários que TÊM uma data de admissão
+        funcionarios_com_admissao = Funcionario.query.filter(Funcionario.data_admissao.isnot(None)).all()
+
+        total_dias_servico = 0
+        if len(funcionarios_com_admissao) > 0:
+            for f in funcionarios_com_admissao:
+                # Se o funcionário está desligado, usa a data de desligamento
+                data_fim = f.data_desligamento if f.data_desligamento else hoje
+                # Se a data de admissão for inválida ou posterior à data fim, ignora
+                if f.data_admissao and data_fim > f.data_admissao:
+                    total_dias_servico += (data_fim - f.data_admissao).days
+
+            # Calcula a média de dias e depois converte para anos
+            media_dias = total_dias_servico / len(funcionarios_com_admissao)
+            tempo_medio_anos = round(media_dias / 365.25, 1) # Arredonda para 1 casa decimal
+        else:
+            tempo_medio_anos = 0.0
+
+        # 4. Monta o objeto de resposta ATUALIZADO
         estatisticas = {
             'total_funcionarios': total_funcionarios,
             'por_vinculo': contagem_vinculo,
-            'por_situacao': contagem_situacao
+            'por_situacao': contagem_situacao,
+            'tempo_medio_servico_anos': tempo_medio_anos # <-- Novo dado
         }
         
         return jsonify(estatisticas), 200

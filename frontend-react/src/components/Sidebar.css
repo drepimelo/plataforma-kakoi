@@ -60,7 +60,6 @@
 .sidebar-nav a.active {
   background-color: #4581DB;
   color: #ffffff;
-  border-right: 3px solid #007bff;
   border-radius: 36px;
 }
 
