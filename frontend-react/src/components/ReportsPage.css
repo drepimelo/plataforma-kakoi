@@ -57,11 +57,12 @@ display: flex; /* Mude de 'grid' para 'flex' */
 
 .chart-container {
 background-color: #fff;
-  padding: 20px;
+  padding: 20px 20px 40px;
   border-radius: 36px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   /* Agora definimos um tamanho máximo e permitimos que ele encolha */
   max-width: 300px; 
+  height: fit-content;
   flex-grow: 1; /* Permite que o container cresça se houver espaço */
   flex-basis: 300px; /* Define um tamanho base antes de crescer/encolher */
 }

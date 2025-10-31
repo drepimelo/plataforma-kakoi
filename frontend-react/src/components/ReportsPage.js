@@ -43,7 +43,7 @@ function ReportsPage() {
 
     fetchStats();
   }, []); // O array vazio [] significa que isso roda apenas uma vez
-const createChartData = (dataObject, chartType = 'bar') => {
+const createChartData = (dataObject, chartType) => {
     if (!dataObject) {
       return null;
     }
@@ -65,7 +65,6 @@ const createChartData = (dataObject, chartType = 'bar') => {
     if (chartType === 'bar') {
       dataset.borderRadius = 36; 
     }
-
     return {
       labels: labels,
       datasets: [dataset], // Use o dataset que acabamos de montar
@@ -73,8 +72,49 @@ const createChartData = (dataObject, chartType = 'bar') => {
   };
 
   // --- Placeholder para o botão de download ---
-  const handleDownloadExcel = () => {
-    alert('Funcionalidade de download do Excel ainda não implementada.');
+const handleDownloadExcel = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('Autenticação inválida. Por favor, faça o login novamente.');
+      return;
+    }
+
+    try {
+      // 1. Faz a chamada para a nossa rota de exportação
+      const response = await fetch('http://127.0.0.1:5000/funcionarios/exportar', {
+        headers: {
+          'x-access-token': token,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Falha ao gerar o relatório.');
+      }
+
+      // 2. Pega os dados do arquivo como um "blob" (um objeto de arquivo genérico)
+      const blob = await response.blob();
+      
+      // 3. Cria uma URL temporária "virtual" para esse arquivo
+      const url = window.URL.createObjectURL(blob);
+      
+      // 4. Cria um link <a> invisível na página
+      const link = document.createElement('a');
+      link.href = url;
+      
+      // 5. Define o nome do arquivo que será baixado
+      link.setAttribute('download', 'relatorio_funcionarios.xlsx');
+      
+      // 6. Adiciona o link ao corpo do documento e clica nele via script
+      document.body.appendChild(link);
+      link.click();
+      
+      // 7. Limpa a URL temporária e remove o link
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+    } catch (err) {
+      alert(err.message || 'Erro ao tentar baixar o arquivo.');
+    }
   };
 
   if (loading) return <div>Carregando relatórios...</div>;
@@ -136,7 +176,7 @@ const createChartData = (dataObject, chartType = 'bar') => {
   }
 
   // Prepara os dados para cada gráfico
-const vinculoChartData = createChartData(statsData.por_vinculo);
+const vinculoChartData = createChartData(statsData.por_vinculo, 'bar');
   const vinculoOptions = {
     indexAxis: 'y', // Isso torna o gráfico horizontal
     responsive: true,
@@ -177,7 +217,7 @@ const vinculoChartData = createChartData(statsData.por_vinculo);
       }
     }
   };
- const situacaoChartData = createChartData(statsData.por_situacao);
+ const situacaoChartData = createChartData(statsData.por_situacao, 'pie');
   const situacaoOptions = {
     responsive: true,
     plugins: {
@@ -237,18 +277,19 @@ const vinculoChartData = createChartData(statsData.por_vinculo);
             </div>
 
             <div className="charts-grid">
-                {vinculoChartData && (
-                <div className="chart-container">
-                    <h3>Divisão por Tipo de Vínculo</h3>
-                    <Bar options={vinculoOptions} data={vinculoChartData} />
-                </div>
-                )}
                 {situacaoChartData && (
-                <div className="chart-container">
+                <div className="chart-container" >
                     <h3>Divisão por Situação</h3>
                     <Pie data={situacaoChartData} />
                 </div>
                 )}
+                {vinculoChartData && (
+                <div className="chart-container">
+                    <h3>Divisão por Tipo de Vínculo</h3>
+                    <Bar options={vinculoOptions} data={vinculoChartData}/>
+                </div>
+                )}
+
             </div>
             <div className="report-actions">
                 <button onClick={handleDownloadExcel} className="download-button">

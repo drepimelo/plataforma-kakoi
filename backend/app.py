@@ -1,5 +1,9 @@
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
+from flask import send_file
+import io
+import openpyxl
+import traceback
 from sqlalchemy import Date, or_, func
 import datetime
 from datetime import date
@@ -29,6 +33,8 @@ class Funcionario(db.Model):
     nome_completo = db.Column(db.String(200), nullable=False)
     cpf = db.Column(db.String(11), unique=True, nullable=False) 
     matricula = db.Column(db.String(20), unique=True, nullable=True) 
+    data_nascimento = db.Column(db.Date, nullable=True)
+    sexo = db.Column(db.String(20), nullable=True)
     cargo = db.Column(db.String(100), nullable=False)
     tipo_vinculo = db.Column(db.String(50), nullable=False) 
     situacao = db.Column(db.String(50), nullable=False)
@@ -51,6 +57,8 @@ class Funcionario(db.Model):
             'nome_completo': self.nome_completo,
             'cpf': self.cpf,
             'matricula': self.matricula,
+            'data_nascimento': self.data_nascimento.isoformat() if self.data_nascimento else None,
+            'sexo': self.sexo,
             'cargo': self.cargo,
             'tipo_vinculo': self.tipo_vinculo,
             'situacao': self.situacao,
@@ -175,21 +183,25 @@ def criar_funcionario(current_user):
     data_readaptacao = format_date(dados.get('data_readaptacao'))
     data_aposentadoria = format_date(dados.get('data_aposentadoria'))
     data_desligamento = format_date(dados.get('data_desligamento'))
+    data_nascimento = format_date(dados.get('data_nascimento'))
 
     novo_funcionario = Funcionario(
         nome_completo=dados['nome_completo'],
         cpf=dados['cpf'],
         matricula=dados.get('matricula'),
+        data_nascimento=data_nascimento, # <-- NOVO
+        sexo=dados.get('sexo'),          # <-- NOVO
         cargo=dados['cargo'],
         tipo_vinculo=dados['tipo_vinculo'],
         situacao=dados['situacao'],
         localizacao_fisica=dados.get('localizacao_fisica'),
         data_admissao=data_admissao,
+        data_desligamento=data_desligamento,
         cid=dados.get('cid'),
         data_readaptacao=data_readaptacao,
         data_aposentadoria=data_aposentadoria,
         dodf_aposentadoria=dados.get('dodf_aposentadoria'),
-        data_desligamento=data_desligamento,
+        
 
 
         pcd=dados.get('pcd', False),
@@ -236,6 +248,11 @@ def atualizar_funcionario(current_user, id_funcionario):
     # Atualiza os novos campos
     funcionario.cid = dados.get('cid', funcionario.cid)
     funcionario.dodf_aposentadoria = dados.get('dodf_aposentadoria', funcionario.dodf_aposentadoria)
+    funcionario.sexo = dados.get('sexo', funcionario.sexo)
+    if 'data_nascimento' in dados:
+        funcionario.data_nascimento = format_date(dados.get('data_nascimento'))
+    if 'data_desligamento' in dados:
+        funcionario.data_desligamento = format_date(dados.get('data_desligamento'))
 
     # Atualiza as datas usando nossa função auxiliar
     if 'data_admissao' in dados:
@@ -340,6 +357,66 @@ def get_estatisticas(current_user):
     except Exception as e:
         # Captura qualquer erro que possa acontecer durante a consulta
         return jsonify({'message': 'Erro ao calcular estatísticas', 'error': str(e)}), 500
+
+@app.route("/funcionarios/exportar", methods=['GET'])
+@token_required
+def exportar_excel(current_user):
+    try:
+        # 1. Buscar todos os funcionários no banco
+        funcionarios = Funcionario.query.all()
+
+        # 2. Criar um "arquivo Excel" em memória
+        workbook = openpyxl.Workbook()
+        sheet = workbook.active
+        sheet.title = "Relatório de Funcionários"
+
+        # 3. Criar a linha do Cabeçalho
+        headers = [
+            "ID", "Nome Completo", "CPF", "Matrícula", "Cargo", 
+            "Tipo de Vínculo", "Situação", "Localização Física", 
+            "Data de Admissão", "PCD", "CID", "Readaptado", 
+            "Data de Readaptação", "Data de Aposentadoria", "DODF Aposentadoria"
+        ]
+        sheet.append(headers)
+
+        # 4. Preencher a planilha com os dados
+        for func in funcionarios:
+            sheet.append([
+                func.id,
+                func.nome_completo,
+                func.cpf,
+                func.matricula,
+                func.cargo,
+                func.tipo_vinculo,
+                func.situacao,
+                func.localizacao_fisica,
+                func.data_admissao.isoformat() if func.data_admissao else None,
+                func.pcd,
+                func.cid,
+                func.readaptado,
+                func.data_readaptacao.isoformat() if func.data_readaptacao else None,
+                func.data_aposentadoria.isoformat() if func.data_aposentadoria else None,
+                func.dodf_aposentadoria
+            ])
+
+        # 5. Salvar o arquivo em um "stream" de bytes na memória
+        memoria_virtual = io.BytesIO()
+        workbook.save(memoria_virtual)
+        memoria_virtual.seek(0) # Retorna ao início do "arquivo"
+
+        # 6. Enviar o arquivo em memória para o usuário
+        return send_file(
+            memoria_virtual,
+            as_attachment=True,
+            download_name="relatorio_funcionarios.xlsx",
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+
+    except Exception as e:
+    # Esta linha vai imprimir o traceback completo no seu terminal do Flask
+        print(traceback.format_exc())
+        return jsonify({'message': 'Erro ao gerar o relatório', 'error': str(e)}), 500
+
 
 if __name__ == "__main__":
 
