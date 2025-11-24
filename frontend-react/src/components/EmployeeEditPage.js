@@ -87,20 +87,26 @@ const handleChange = (e) => {
 
   return (
     <div className="employee-register-page">
-      <h1>Editar funcionário</h1>
-      {error && <p className="error-message">{error}</p>}
+      <h1>Cadastrar funcionário</h1>
       <form onSubmit={handleSubmit} className="employee-form">
-        {/* O formulário é idêntico ao de cadastro, mas os campos são preenchidos pelos dados carregados */}
-        {/* Exemplo para o campo nome: */}
         <div className="form-row">
           <div className="form-group full-width">
             <label htmlFor="nome_completo">Nome*</label>
             <input type="text" id="nome_completo" name="nome_completo" value={formData.nome_completo} onChange={handleChange} required />
           </div>
+          <div className="form-group">
+            <label>Sexo</label>
+            <select id="sexo" name="sexo" value={formData.sexo} onChange={handleChange} required>
+              <option value="0">N/A</option>
+              <option value="Homem">Homem</option>
+              <option value="Mulher">Mulher</option>
+            </select>     
+          </div>
+          <div className="form-group">
+            <label htmlFor="data_nascimento">Data de nascimento</label>
+            <input type="date" id="data_nascimento" name="data_nascimento" value={formData.data_nascimento} onChange={handleChange} />
+          </div>
         </div>
-        
-        {/* ... cole aqui o resto de TODOS os campos do formulário de EmployeeRegisterPage.js ... */}
-        {/* Exatamente o mesmo JSX, eles serão preenchidos pelo estado 'formData' */}
 
         <div className="form-row">
           <div className="form-group">
@@ -108,8 +114,8 @@ const handleChange = (e) => {
             <input type="text" id="cpf" name="cpf" value={formData.cpf} onChange={handleChange} required />
           </div>
           <div className="form-group">
-            <label htmlFor="matricula">Matrícula</label>
-            <input type="text" id="matricula" name="matricula" value={formData.matricula} onChange={handleChange} />
+            <label htmlFor="matricula">Matrícula*</label>
+            <input type="text" id="matricula" name="matricula" value={formData.matricula} onChange={handleChange} required/>
           </div>
         </div>
         
@@ -118,19 +124,18 @@ const handleChange = (e) => {
             <label htmlFor="cargo">Cargo*</label>
             <input type="text" id="cargo" name="cargo" value={formData.cargo} onChange={handleChange} required />
           </div>
-          <div className="form-group">
-            <label htmlFor="tipo_vinculo">Tipo de Vínculo*</label>
-            <select id="tipo_vinculo" name="tipo_vinculo" value={formData.tipo_vinculo} onChange={handleChange} required>
-              <option value="Efetivo">Efetivo</option>
-              <option value="Temporário">Temporário</option>
-              <option value="Estagiário">Estagiário</option>
-              <option value="Voluntário">Voluntário</option>
-              <option value="Terceirizado">Terceirizado</option>
-            </select>
-          </div>
-        </div>
 
-        <div className="form-row">
+          <div className="form-group">
+        <label htmlFor="tipo_vinculo">Tipo de Vínculo*</label>
+        <select id="tipo_vinculo" name="tipo_vinculo" value={formData.tipo_vinculo} onChange={handleChange} required>
+          <option value="Efetivo">Efetivo</option>
+          <option value="Temporário">Temporário</option>
+          <option value="Estagiário">Estagiário</option>
+          <option value="Voluntário">Voluntário</option>
+          <option value="Terceirizado">Terceirizado</option>
+        </select>
+      </div>
+
           <div className="form-group">
             <label htmlFor="situacao">Situação*</label>
             <select id="situacao" name="situacao" value={formData.situacao} onChange={handleChange} required>
@@ -140,17 +145,17 @@ const handleChange = (e) => {
               <option value="Licenciado">Licenciado</option>
             </select>
           </div>
+        </div>
+
+        <div className="form-row">
            <div className="form-group">
             <label htmlFor="data_admissao">Data de admissão*</label>
             <input type="date" id="data_admissao" name="data_admissao" value={formData.data_admissao} onChange={handleChange} required/>
           </div>
-        </div>
-        
-        <div className="form-row">
-            <div className="form-group full-width">
-                <label htmlFor="localizacao_fisica">Localização física do arquivo*</label>
-                <input type="text" id="localizacao_fisica" name="localizacao_fisica" value={formData.localizacao_fisica} onChange={handleChange} required />
-            </div>
+          <div className="form-group">
+            <label htmlFor="localizacao_fisica">Localização física do arquivo*</label>
+            <input type="text" id="localizacao_fisica" name="localizacao_fisica" value={formData.localizacao_fisica} onChange={handleChange} required />
+          </div>
         </div>
 
         <hr />
@@ -195,9 +200,15 @@ const handleChange = (e) => {
             <input type="text" id="dodf_aposentadoria" name="dodf_aposentadoria" value={formData.dodf_aposentadoria} onChange={handleChange} />
           </div>
         </div>
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="data_desligamento">Data de desligamento</label>
+            <input type="date" id="data_desligamento" name="data_desligamento" value={formData.data_desligamento} onChange={handleChange} />
+          </div>
+        </div>
 
         <div className="form-actions">
-          <button type="submit" className="submit-button">Salvar Alterações</button>
+          <button type="submit" className="submit-button">Cadastrar</button>
         </div>
       </form>
     </div>

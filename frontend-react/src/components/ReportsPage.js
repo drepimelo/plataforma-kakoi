@@ -258,6 +258,89 @@ const vinculoChartData = createChartData(statsData.por_vinculo, 'bar');
       }
     }
   };
+  const sexoChartData = createChartData(statsData.por_sexo, 'bar');
+  const sexoOptions = {
+    indexAxis: 'y', // Isso torna o gráfico horizontal
+    responsive: true,
+    plugins: {
+      legend: {
+        display: false, // Esconde a legenda, como no design
+        
+      },
+      title: {
+        display: true,
+        text: 'Tipo de Vínculo', // Título do gráfico
+        font: { size: 16 }
+      },
+    },
+    scales: {
+      y: { // O eixo Y (onde ficam os números 0, 10, 20...)
+        ticks: {
+          font: {
+            size: 12,
+            family: 'DM Sans',
+          }
+        },
+        grid: {
+          color: '#f0f0f0', // Cor das linhas de grade (cinza bem claro),
+          
+        }
+      },
+      x: { // O eixo X (onde ficam os nomes "Ativo", "Inativo"...)
+        ticks: {
+          font: {
+            size: 14,
+            family: 'DM Sans',
+          },
+        },
+        grid: {
+          display: false // Esconde as linhas de grade verticais
+        }
+      }
+    }
+  };
+  const faixaEtariaChartData = createChartData(statsData.por_faixa_etaria, 'bar');
+  const faixaEtariaOptions = {
+    indexAxis: 'x', // Isso torna o gráfico horizontal
+    responsive: true,
+    plugins: {
+      legend: {
+        display: false, // Esconde a legenda, como no design
+        
+      },
+      title: {
+        display: true,
+        text: 'Faixa Etária', // Título do gráfico
+        font: { size: 16 }
+      },
+    },
+    scales: {
+      y: { // O eixo Y (onde ficam os números 0, 10, 20...)
+        ticks: {
+          font: {
+            size: 12,
+            family: 'DM Sans',
+          }
+        },
+        grid: {
+          color: '#f0f0f0', // Cor das linhas de grade (cinza bem claro),
+          
+        }
+      },
+      x: { // O eixo X (onde ficam os nomes "Ativo", "Inativo"...)
+        ticks: {
+          font: {
+            size: 14,
+            family: 'DM Sans',
+          },
+        },
+        grid: {
+          display: false // Esconde as linhas de grade verticais
+        }
+      }
+    }
+  };
+
 
   return (
     <div className="reports-page">
@@ -287,6 +370,18 @@ const vinculoChartData = createChartData(statsData.por_vinculo, 'bar');
                 <div className="chart-container">
                     <h3>Divisão por Tipo de Vínculo</h3>
                     <Bar options={vinculoOptions} data={vinculoChartData}/>
+                </div>
+                )}
+                {sexoChartData && (
+                <div className="chart-container">
+                    <h3>Divisão por Sexo</h3>
+                    <Bar options={sexoOptions} data={sexoChartData}/>
+                </div>
+                )}
+                {faixaEtariaChartData && (
+                <div className="chart-container">
+                    <h3>Divisão por Faixa Etária</h3>
+                    <Bar options={faixaEtariaOptions} data={faixaEtariaChartData}/>
                 </div>
                 )}
 

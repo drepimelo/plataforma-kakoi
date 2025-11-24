@@ -177,41 +177,40 @@ def login():
 @app.route("/funcionarios", methods=['POST'])
 @token_required
 def criar_funcionario(current_user):
-    dados = request.json
+    try: # <--- ADICIONE
+        dados = request.json
 
-    data_admissao = format_date(dados.get('data_admissao'))
-    data_readaptacao = format_date(dados.get('data_readaptacao'))
-    data_aposentadoria = format_date(dados.get('data_aposentadoria'))
-    data_desligamento = format_date(dados.get('data_desligamento'))
-    data_nascimento = format_date(dados.get('data_nascimento'))
+        data_admissao = format_date(dados.get('data_admissao'))
+        data_readaptacao = format_date(dados.get('data_readaptacao'))
+        data_aposentadoria = format_date(dados.get('data_aposentadoria'))
+        data_desligamento = format_date(dados.get('data_desligamento'))
+        data_nascimento = format_date(dados.get('data_nascimento'))
 
-    novo_funcionario = Funcionario(
-        nome_completo=dados['nome_completo'],
-        cpf=dados['cpf'],
-        matricula=dados.get('matricula'),
-        data_nascimento=data_nascimento, # <-- NOVO
-        sexo=dados.get('sexo'),          # <-- NOVO
-        cargo=dados['cargo'],
-        tipo_vinculo=dados['tipo_vinculo'],
-        situacao=dados['situacao'],
-        localizacao_fisica=dados.get('localizacao_fisica'),
-        data_admissao=data_admissao,
-        data_desligamento=data_desligamento,
-        cid=dados.get('cid'),
-        data_readaptacao=data_readaptacao,
-        data_aposentadoria=data_aposentadoria,
-        dodf_aposentadoria=dados.get('dodf_aposentadoria'),
-        
-
-
-        pcd=dados.get('pcd', False),
-        readaptado=dados.get('readaptado', False)
-    )
-
-    db.session.add(novo_funcionario)
-    db.session.commit()
-
-    return jsonify(novo_funcionario.to_dict()), 201
+        novo_funcionario = Funcionario(
+            nome_completo=dados['nome_completo'],
+            cpf=dados['cpf'],
+            matricula=dados.get('matricula'),
+            data_nascimento=data_nascimento,
+            sexo=dados.get('sexo'),
+            cargo=dados['cargo'],
+            tipo_vinculo=dados['tipo_vinculo'],
+            situacao=dados['situacao'],
+            localizacao_fisica=dados['localizacao_fisica'],
+            data_admissao=data_admissao,
+            data_desligamento=data_desligamento,
+            pcd=dados.get('pcd', False),
+            readaptado=dados.get('readaptado', False),
+            cid=dados.get('cid'),
+            data_readaptacao=data_readaptacao,
+            data_aposentadoria=data_aposentadoria,
+            dodf_aposentadoria=dados.get('dodf_aposentadoria')
+        )
+        db.session.add(novo_funcionario)
+        db.session.commit()
+        return jsonify(novo_funcionario.to_dict()), 201
+    except Exception as e: # <--- ADICIONE ESTE BLOCO
+        print(traceback.format_exc())
+        return jsonify({'message': 'Erro interno ao criar funcionário', 'error': str(e)}), 500
 
 @app.route("/funcionarios", methods=['GET'])
 @token_required
@@ -229,43 +228,48 @@ def buscar_funcionario_por_id(current_user, id_funcionario):
 @token_required
 def atualizar_funcionario(current_user, id_funcionario):
     
-    funcionario = Funcionario.query.get_or_404(id_funcionario)
-    dados = request.get_json()
+    try:
+        funcionario = Funcionario.query.get_or_404(id_funcionario)
+        dados = request.get_json()
 
-    # Atualiza cada campo com os novos dados, mantendo o valor antigo se um novo não for fornecido
-    funcionario.nome_completo = dados.get('nome_completo', funcionario.nome_completo)
-    funcionario.cpf = dados.get('cpf', funcionario.cpf)
-    funcionario.matricula = dados.get('matricula', funcionario.matricula)
-    funcionario.cargo = dados.get('cargo', funcionario.cargo)
-    funcionario.tipo_vinculo = dados.get('tipo_vinculo', funcionario.tipo_vinculo)
-    funcionario.situacao = dados.get('situacao', funcionario.situacao)
-    funcionario.localizacao_fisica = dados.get('localizacao_fisica', funcionario.localizacao_fisica)
-    
-    # Atualiza campos booleanos
-    funcionario.pcd = dados.get('pcd', funcionario.pcd)
-    funcionario.readaptado = dados.get('readaptado', funcionario.readaptado)
+        # Atualiza cada campo com os novos dados, mantendo o valor antigo se um novo não for fornecido
+        funcionario.nome_completo = dados.get('nome_completo', funcionario.nome_completo)
+        funcionario.cpf = dados.get('cpf', funcionario.cpf)
+        funcionario.matricula = dados.get('matricula', funcionario.matricula)
+        funcionario.cargo = dados.get('cargo', funcionario.cargo)
+        funcionario.tipo_vinculo = dados.get('tipo_vinculo', funcionario.tipo_vinculo)
+        funcionario.situacao = dados.get('situacao', funcionario.situacao)
+        funcionario.localizacao_fisica = dados.get('localizacao_fisica', funcionario.localizacao_fisica)
+        
+        # Atualiza campos booleanos
+        funcionario.pcd = dados.get('pcd', funcionario.pcd)
+        funcionario.readaptado = dados.get('readaptado', funcionario.readaptado)
 
-    # Atualiza os novos campos
-    funcionario.cid = dados.get('cid', funcionario.cid)
-    funcionario.dodf_aposentadoria = dados.get('dodf_aposentadoria', funcionario.dodf_aposentadoria)
-    funcionario.sexo = dados.get('sexo', funcionario.sexo)
-    if 'data_nascimento' in dados:
-        funcionario.data_nascimento = format_date(dados.get('data_nascimento'))
-    if 'data_desligamento' in dados:
-        funcionario.data_desligamento = format_date(dados.get('data_desligamento'))
+        # Atualiza os novos campos
+        funcionario.cid = dados.get('cid', funcionario.cid)
+        funcionario.dodf_aposentadoria = dados.get('dodf_aposentadoria', funcionario.dodf_aposentadoria)
+        funcionario.sexo = dados.get('sexo', funcionario.sexo)
+        if 'data_nascimento' in dados:
+            funcionario.data_nascimento = format_date(dados.get('data_nascimento'))
+        if 'data_desligamento' in dados:
+            funcionario.data_desligamento = format_date(dados.get('data_desligamento'))
 
-    # Atualiza as datas usando nossa função auxiliar
-    if 'data_admissao' in dados:
-        funcionario.data_admissao = format_date(dados.get('data_admissao'))
-    if 'data_readaptacao' in dados:
-        funcionario.data_readaptacao = format_date(dados.get('data_readaptacao'))
-    if 'data_aposentadoria' in dados:
-        funcionario.data_aposentadoria = format_date(dados.get('data_aposentadoria'))
-    if 'data_desligamento' in dados:
-        funcionario.data_desligamento = format_date(dados.get('data_desligamento'))
-    
-    db.session.commit()
-    return jsonify(funcionario.to_dict())
+        # Atualiza as datas usando nossa função auxiliar
+        if 'data_admissao' in dados:
+            funcionario.data_admissao = format_date(dados.get('data_admissao'))
+        if 'data_readaptacao' in dados:
+            funcionario.data_readaptacao = format_date(dados.get('data_readaptacao'))
+        if 'data_aposentadoria' in dados:
+            funcionario.data_aposentadoria = format_date(dados.get('data_aposentadoria'))
+        if 'data_desligamento' in dados:
+            funcionario.data_desligamento = format_date(dados.get('data_desligamento'))
+        
+        db.session.commit()
+        return jsonify(funcionario.to_dict())
+
+    except Exception as e: # <--- ADICIONE ESTE BLOCO
+        print(traceback.format_exc())
+        return jsonify({'message': 'Erro interno ao criar funcionário', 'error': str(e)}), 500
 
 @app.route("/funcionarios/<int:id_funcionario>", methods=['DELETE'])
 @token_required
@@ -302,9 +306,43 @@ def buscar_funcionarios(current_user):
 @token_required
 def get_estatisticas(current_user):
     try:
+        todos_funcionarios = Funcionario.query.all()
         # 1. Total de Funcionários (já tínhamos)
         total_funcionarios = Funcionario.query.count()
 
+        faixa_etaria = {
+            "-20": 0,
+            "20-30": 0,
+            "30-40": 0,
+            "40-50": 0,
+            "50-60": 0,
+            "60+": 0
+        }
+
+        hoje = date.today()
+
+        for f in todos_funcionarios:
+            if f.data_nascimento:
+                    idade = hoje.year - f.data_nascimento.year - ((hoje.month, hoje.day) < (f.data_nascimento.month, f.data_nascimento.day))
+                    
+                    # 2. Lógica de agrupamento corrigida
+                    if idade < 20:
+                        faixa_etaria["-20"] += 1
+                    elif 20 <= idade <= 30:
+                        faixa_etaria["20-30"] += 1
+                    elif 31 <= idade <= 40:
+                        faixa_etaria["30-40"] += 1
+                    # Note que estamos ignorando idades entre 41 e 50, como na sua lista
+                    elif 51 <= idade <= 60:
+                        faixa_etaria["50-60"] += 1
+                    elif idade > 60:
+                        faixa_etaria["60+"] += 1
+
+        contagem_sexo_query = db.session.query(
+            Funcionario.sexo, 
+            func.count(Funcionario.id)
+        ).group_by(Funcionario.sexo).all()
+        contagem_sexo = {sexo: count for sexo, count in contagem_sexo_query}
         # 2. Contagem por Tipo de Vínculo (já tínhamos)
         contagem_vinculo_query = db.session.query(
             Funcionario.tipo_vinculo, 
@@ -349,13 +387,16 @@ def get_estatisticas(current_user):
             'total_funcionarios': total_funcionarios,
             'por_vinculo': contagem_vinculo,
             'por_situacao': contagem_situacao,
-            'tempo_medio_servico_anos': tempo_medio_anos # <-- Novo dado
+            'tempo_medio_servico_anos': tempo_medio_anos, # <-- Novo dado
+            'por_sexo': contagem_sexo,
+            'por_faixa_etaria': faixa_etaria,
         }
         
         return jsonify(estatisticas), 200
 
     except Exception as e:
         # Captura qualquer erro que possa acontecer durante a consulta
+        print(traceback.format_exc())
         return jsonify({'message': 'Erro ao calcular estatísticas', 'error': str(e)}), 500
 
 @app.route("/funcionarios/exportar", methods=['GET'])
@@ -363,7 +404,7 @@ def get_estatisticas(current_user):
 def exportar_excel(current_user):
     try:
         # 1. Buscar todos os funcionários no banco
-        funcionarios = Funcionario.query.all()
+        funcionarios = Funcionario.query.order_by(Funcionario.nome_completo).all()
 
         # 2. Criar um "arquivo Excel" em memória
         workbook = openpyxl.Workbook()

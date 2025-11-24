@@ -1,18 +1,5 @@
-*{
-  font-family: 'dm sans', sans-serif;
-}
-
 .employee-register-page {
-    margin-top: 1.5vh;
-    background-color: #4581DB;
-    border-radius: 56px;
-    padding: 50px;
-}
-
-.employee-register-page h1 {
-  font-size: 1.2rem;
-  margin: 0 0 20px 0;
-  color: white;
+  padding: 20px;
 }
 
 .employee-form {
@@ -38,14 +25,15 @@
 
 .form-group label {
   margin-bottom: 8px;
-  color: rgb(228, 228, 228);
+  font-weight: bold;
+  color: #555;
 }
 
 .form-group input,
 .form-group select {
   padding: 12px;
-  border: none;
-  border-radius: 32px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
   font-size: 16px;
 }
 
@@ -63,17 +51,10 @@
 .submit-button {
   padding: 12px 24px;
   border: none;
-
-  background-color: white;
-  color: #4581DB;
-  border-radius: 16px;
+  background-color: #007bff;
+  color: white;
+  border-radius: 4px;
   cursor: pointer;
   font-size: 16px;
   font-weight: bold;
-}
-
-.submit-button:hover{
-  background-color: #007bff;
-  color: white;
-  transition: .3s ease-in;
 }

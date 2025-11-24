@@ -95,6 +95,18 @@ const handleChange = (e) => {
             <label htmlFor="nome_completo">Nome*</label>
             <input type="text" id="nome_completo" name="nome_completo" value={formData.nome_completo} onChange={handleChange} required />
           </div>
+          <div className="form-group">
+            <label>Sexo</label>
+            <select id="sexo" name="sexo" value={formData.sexo} onChange={handleChange} required>
+              <option value="0">N/A</option>
+              <option value="Homem">Homem</option>
+              <option value="Mulher">Mulher</option>
+            </select>     
+          </div>
+          <div className="form-group">
+            <label htmlFor="data_nascimento">Data de nascimento</label>
+            <input type="date" id="data_nascimento" name="data_nascimento" value={formData.data_nascimento} onChange={handleChange} />
+          </div>
         </div>
 
         <div className="form-row">
@@ -187,6 +199,12 @@ const handleChange = (e) => {
           <div className="form-group">
             <label htmlFor="dodf_aposentadoria">DODF da aposentadoria</label>
             <input type="text" id="dodf_aposentadoria" name="dodf_aposentadoria" value={formData.dodf_aposentadoria} onChange={handleChange} />
+          </div>
+        </div>
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="data_desligamento">Data de desligamento</label>
+            <input type="date" id="data_desligamento" name="data_desligamento" value={formData.data_desligamento} onChange={handleChange} />
           </div>
         </div>
 

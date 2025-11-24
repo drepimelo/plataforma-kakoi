@@ -28,12 +28,13 @@
 
 .profile-header h1 {
   margin: 0;
+    color: white;
 }
 
 .profile-header p {
   margin: 5px 0 0 0;
   font-size: 18px;
-  color: #242424;
+  color: white;
 }
 
 .profile-grid {
