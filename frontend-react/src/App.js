@@ -11,6 +11,7 @@ import SearchPage from './components/SearchPage';
 import EmployeeRegisterPage from './components/EmployeeRegisterPage';
 import EmployeeEditPage from './components/EmployeeEditPage';
 import ReportsPage from './components/ReportsPage';
+import PreferencesPage from './components/PreferencesPage';
 
 // Importando o componente de Layout
 import MainLayout from './components/MainLayout';
@@ -100,7 +101,7 @@ function App() {
             <Route path="/relatorios" element={<PrivateRoute><ReportsPage /></PrivateRoute>} />
             {/* Placeholders para as rotas futuras */}
 
-            <Route path="/preferencias" element={<PrivateRoute><h1>Página de Preferências</h1></PrivateRoute>} />
+            <Route path="/preferencias" element={<PrivateRoute><PreferencesPage /></PrivateRoute>} />
 
             {/* Rota "Catch-all": Redireciona para o local correto */}
             <Route 

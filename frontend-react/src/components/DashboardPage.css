@@ -1,0 +1,303 @@
+.dashboard-page {
+  display: grid;
+  /* Define o layout de grid: 
+     - Colunas: 2/3 para o Kanban/Avisos, 1/3 para Perfil/Calendário 
+     - Linhas: Auto para cima, Auto para baixo
+  */
+  grid-template-columns: 2fr 1fr; 
+  grid-template-rows: auto auto;
+  gap: 20px;
+  padding: 20px;
+  margin-top: 1.5vh;
+  background-color: #4581DB;
+  border-radius: 56px;
+}
+
+/* --- SEÇÃO KANBAN --- */
+.kanban-section {
+  grid-column: 1 / 2; /* Coluna 1 */
+  grid-row: 1 / 2;    /* Linha 1 */
+  
+  display: flex;
+  gap: 15px;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 48px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.kanban-column {
+  flex: 1;
+  background-color: #f8f9fa;
+  border-radius: 24px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.kanban-column h3 {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.task-card {
+  padding: 10px;
+  border-radius: 16px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.task-card p {
+  margin: 0;
+  /* Estas propriedades forçam a quebra de linha */
+  word-break: break-word; 
+  overflow-wrap: break-word; 
+  white-space: pre-wrap; /* Mantém quebras de linha se o usuário der Enter */
+}
+
+/* Cores das tarefas baseadas no design */
+.color-yellow { background-color: #ffeeb0; color: #856404; }
+.color-red { background-color: #f8d7da; color: #721c24; }
+.color-green { background-color: #d4edda; color: #155724; }
+
+.task-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.task-actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.task-actions button:hover { opacity: 1; }
+.add-task-form {
+  display: flex;
+  gap: 5px; /* Empurra o formulário para o fundo da coluna */
+}
+
+.add-task-form input {
+  width: 80%;
+  padding: 8px;
+  border: 1px dashed #ccc;
+  border-radius: 12px;
+  background: transparent;
+}
+
+/* --- SEÇÃO PERFIL --- */
+.profile-section {
+  grid-column: 2 / 3;
+  grid-row: 1 / 2;
+  
+  background-color: #0056b3; /* Azul do design */
+  color: white;
+  border-radius: 32px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.profile-image-placeholder {
+  width: 80px;
+  height: 80px;
+  background-color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  font-weight: bold;
+  color: #0056b3;
+  margin-bottom: 15px;
+  border: 4px solid rgba(255,255,255,0.3);
+}
+
+.profile-section h2 { margin: 0; font-size: 20px; }
+.profile-section .role { margin: 5px 0 0; opacity: 0.9; }
+.profile-section .institution { font-size: 12px; opacity: 0.7; }
+
+/* --- SEÇÃO AVISOS --- */
+.notes-section {
+  grid-column: 1 / 2;
+  grid-row: 2 / 3;
+  background-color: #fff;
+  border-radius: 48px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.note-item {
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+
+.add-note-form {
+    display: flex;
+    margin-top: auto; /* Empurra para o fundo */
+    padding-top: 15px;
+}
+
+.add-note-form input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    gap: 5px;
+    border-radius: 12px;
+}
+
+.add-note-form button {
+    padding: 8px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+}
+
+/* --- SEÇÃO CALENDÁRIO --- */
+.calendar-section {
+  grid-column: 2 / 3;
+  grid-row: 2 / 3;
+
+  background-color: #fff;
+  border-radius: 32px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+/* Ajustes no plugin do calendário para remover bordas padrão */
+.react-calendar {
+    border: none !important;
+    width: 100% !important;
+}
+
+.task-date {
+    display: block;
+    font-size: 11px;
+    color: #666;
+    margin-top: 4px;
+}
+
+/* Estilo para o input de data pequeno nos formulários */
+.date-input-small {
+    width: 40px; /* Pequeno por padrão */
+    border: none;
+    background: transparent;
+    font-size: 10px;
+    color: #666;
+    cursor: pointer;
+}
+.date-input-small:focus {
+    width: 120px; /* Expande ao clicar */
+    outline: none;
+}
+
+/* Estilos para a lista de avisos com botão de delete */
+.note-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.note-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.note-content span {
+  /* Garante que o texto ocupe o espaço mas quebre se necessário */
+  display: block; 
+  width: 100%;
+  
+  /* As mesmas propriedades de quebra */
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.note-date {
+    font-size: 10px;
+    color: #888;
+    margin-left: 10px;
+}
+
+.delete-note-btn {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    font-weight: bold;
+    opacity: 0.5;
+}
+.delete-note-btn:hover { opacity: 1; }
+
+/* --- BOLINHAS NO CALENDÁRIO --- */
+.calendar-dots {
+    display: flex;
+    justify-content: center;
+    gap: 3px;
+    margin-top: 2px;
+}
+
+.dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.task-dot {
+    background-color: #ffc107; /* Amarelo (cor da tarefa) */
+}
+
+.aviso-dot {
+    background-color: #dc3545; /* Vermelho (cor do aviso) */
+}
+
+.calendar-legend {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 10px;
+    font-size: 12px;
+    color: #666;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Responsividade */
+@media (max-width: 900px) {
+  .dashboard-page {
+    grid-template-columns: 1fr; /* Tudo em uma coluna */
+    grid-template-rows: auto;
+  }
+  
+  .kanban-section, .profile-section, .notes-section, .calendar-section {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+
+  .kanban-section {
+      flex-direction: column;
+  }
+}

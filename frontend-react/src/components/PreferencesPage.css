@@ -1,0 +1,120 @@
+.preferences-page {
+  margin-top: 1.5vh;
+  background-color: #4581DB;
+  border-radius: 56px;
+  padding: 20px;
+}
+
+.preferences-page h1 {
+    padding: 15px 35px;
+  font-size: 1.2rem;
+  margin: 0 0 5px 0;
+  color: white;
+}
+
+.pref-card {
+  background-color: #fff;
+  border-radius: 32px;
+  margin-left: 20px;
+  padding: 30px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.pref-card h2 {
+  font-size: 18px;
+  margin-bottom: 25px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.pref-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  min-height: 40px; /* Garante altura consistente */
+}
+
+.pref-label {
+  width: 150px;
+  font-weight: bold;
+  color: #555;
+}
+
+.pref-value {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Empurra o botão "Alterar" para a direita, se quiser */
+  gap: 10px;
+}
+
+.pref-value span {
+    font-size: 16px;
+    color: #333;
+}
+
+.alterar-link {
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  font-weight: 500;
+  text-decoration: underline;
+}
+
+/* Modo de Edição */
+.edit-group {
+    display: flex;
+    gap: 5px;
+    flex: 1;
+}
+
+.edit-group input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.save-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.cancel-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.pref-actions {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.action-btn {
+  width: 15vw;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: left;
+    padding-left: 20px;
+    font-size: 16px;
+}
+
+.download-btn { background-color: #f8f9fa; color: #333; border: 1px solid #ddd; }
+.delete-btn { background-color: #ffeeb0; color: #856404; } /* Amarelo de alerta */
+.logout-btn { background-color: #f8d7da; color: #721c24; } /* Vermelho suave */
+
+.action-btn:hover { opacity: 0.9; }

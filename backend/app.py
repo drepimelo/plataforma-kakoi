@@ -75,9 +75,28 @@ class Funcionario(db.Model):
 
     def __repr__(self):
         return f"<Funcionario {self.nome_completo}>"
+    
+
+
+class Tarefa(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    conteudo = db.Column(db.String(200), nullable=False)
+    status = db.Column(db.String(20), default='afazer')
+    # --- NOVO CAMPO ---
+    data_prazo = db.Column(db.Date, nullable=True) 
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+class Aviso(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    conteudo = db.Column(db.String(500), nullable=False)
+    # --- NOVO CAMPO ---
+    data_prazo = db.Column(db.Date, nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
   
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200), nullable=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(60), nullable=False)
     cargo = db.Column(db.String(100), nullable=True)
@@ -136,6 +155,7 @@ def register():
     hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
     
     new_user = User(
+        name=data.get('name'),
         email=data['email'], 
         password_hash=hashed_password, 
         cargo=data.get('cargo'), 
@@ -457,7 +477,147 @@ def exportar_excel(current_user):
     # Esta linha vai imprimir o traceback completo no seu terminal do Flask
         print(traceback.format_exc())
         return jsonify({'message': 'Erro ao gerar o relatório', 'error': str(e)}), 500
+    
+# --- ROTAS DO PAINEL (DASHBOARD) ---
 
+@app.route("/user/me", methods=['GET'])
+@token_required
+def get_me(current_user):
+    # Retorna os dados do usuário logado para o card de perfil
+    return jsonify({
+        'id': current_user.id,
+        'name': current_user.name,
+        'email': current_user.email,
+        'cargo': current_user.cargo,
+        'instituicao': current_user.instituicao
+    })
+
+# --- Rotas de Tarefas (Kanban) ---
+@app.route("/tarefas", methods=['GET', 'POST'])
+@token_required
+def manage_tarefas(current_user):
+    if request.method == 'POST':
+        data = request.json
+        # Converte a string de data para objeto Date, se existir
+        prazo = format_date(data.get('data_prazo'))
+
+        nova_tarefa = Tarefa(
+            conteudo=data['conteudo'], 
+            status='afazer', 
+            data_prazo=prazo, # Salvando a data
+            user_id=current_user.id
+        )
+        db.session.add(nova_tarefa)
+        db.session.commit()
+        return jsonify({'message': 'Tarefa criada', 'id': nova_tarefa.id}), 201
+
+    tarefas = Tarefa.query.filter_by(user_id=current_user.id).all()
+    output = [{
+        'id': t.id, 
+        'conteudo': t.conteudo, 
+        'status': t.status,
+        'data_prazo': t.data_prazo.isoformat() if t.data_prazo else None
+    } for t in tarefas]
+    return jsonify(output)
+
+@app.route("/tarefas/<int:id>", methods=['PUT', 'DELETE'])
+@token_required
+def update_tarefa(current_user, id):
+    tarefa = Tarefa.query.get_or_404(id)
+    if tarefa.user_id != current_user.id:
+        return jsonify({'message': 'Acesso negado'}), 403
+
+    if request.method == 'DELETE':
+        db.session.delete(tarefa)
+        db.session.commit()
+        return jsonify({'message': 'Tarefa deletada'})
+
+    # PUT: Agora permite atualizar status, conteudo e data
+    data = request.json
+    if 'status' in data:
+        tarefa.status = data['status']
+    if 'conteudo' in data:
+        tarefa.conteudo = data['conteudo']
+    if 'data_prazo' in data:
+        tarefa.data_prazo = format_date(data['data_prazo'])
+
+    db.session.commit()
+    return jsonify({'message': 'Tarefa atualizada'})
+
+# --- Rotas de Avisos ---
+@app.route("/avisos", methods=['GET', 'POST'])
+@token_required
+def manage_avisos(current_user):
+    if request.method == 'POST':
+        data = request.json
+        prazo = format_date(data.get('data_prazo'))
+
+        novo_aviso = Aviso(
+            conteudo=data['conteudo'], 
+            data_prazo=prazo, # Salvando a data
+            user_id=current_user.id
+        )
+        db.session.add(novo_aviso)
+        db.session.commit()
+        return jsonify({'message': 'Aviso criado', 'id': novo_aviso.id}), 201
+
+    avisos = Aviso.query.filter_by(user_id=current_user.id).all()
+    output = [{
+        'id': a.id, 
+        'conteudo': a.conteudo,
+        'data_prazo': a.data_prazo.isoformat() if a.data_prazo else None
+    } for a in avisos]
+    return jsonify(output)
+
+# --- NOVA ROTA PARA DELETAR AVISOS ---
+@app.route("/avisos/<int:id>", methods=['DELETE'])
+@token_required
+def delete_aviso(current_user, id):
+    aviso = Aviso.query.get_or_404(id)
+    if aviso.user_id != current_user.id:
+        return jsonify({'message': 'Acesso negado'}), 403
+
+    db.session.delete(aviso)
+    db.session.commit()
+    return jsonify({'message': 'Aviso deletado'})
+
+
+@app.route("/user/update", methods=['PUT'])
+@token_required
+def update_user_info(current_user):
+    data = request.json
+    try:
+        user = User.query.get(current_user.id)
+        if 'name' in data: user.name = data['name']
+        if 'email' in data: user.email = data['email']
+        if 'cargo' in data: user.cargo = data['cargo']
+        if 'instituicao' in data: user.instituicao = data['instituicao']
+        db.session.commit()
+        return jsonify({'message': 'Dados atualizados!'})
+    except Exception as e:
+        return jsonify({'message': 'Erro ao atualizar', 'error': str(e)}), 500
+
+@app.route("/user/change-password", methods=['PUT'])
+@token_required
+def change_password(current_user):
+    data = request.json
+    if not data.get('new_password'):
+        return jsonify({'message': 'Nova senha obrigatória'}), 400
+    user = User.query.get(current_user.id)
+    user.password_hash = bcrypt.generate_password_hash(data['new_password']).decode('utf-8')
+    db.session.commit()
+    return jsonify({'message': 'Senha alterada!'})
+
+@app.route("/user/delete", methods=['DELETE'])
+@token_required
+def delete_account(current_user):
+    user = User.query.get(current_user.id)
+    # Limpa dados relacionados
+    Tarefa.query.filter_by(user_id=user.id).delete()
+    Aviso.query.filter_by(user_id=user.id).delete()
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify({'message': 'Conta excluída!'})
 
 if __name__ == "__main__":
 

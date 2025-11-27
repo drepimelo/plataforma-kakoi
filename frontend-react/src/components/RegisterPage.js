@@ -6,6 +6,7 @@ import './RegisterPage.css';
 
 function RegisterPage() {
   // Estados para cada campo do formulário
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [cargo, setCargo] = useState('');
@@ -18,7 +19,7 @@ function RegisterPage() {
     setError('');
 
     // Cria o objeto com os dados para enviar ao backend
-    const userData = { email, password, cargo, instituicao };
+    const userData = { name, email, password, cargo, instituicao };
 
     try {
       const response = await fetch('http://127.0.0.1:5000/register', {
@@ -53,6 +54,11 @@ function RegisterPage() {
 
         <form className="login-form" onSubmit={handleSubmit}>
           {error && <p className="error-message">{error}</p>}
+
+          <div className="input-group">
+            <label htmlFor="name">Nome:</label>
+            <input type="text" id="name" placeholder="Seu nome" value={name} onChange={(e) => setName(e.target.value)} required />
+          </div>
 
           <div className="input-group">
             <label htmlFor="email">E-mail:</label>

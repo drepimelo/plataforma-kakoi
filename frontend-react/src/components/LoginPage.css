@@ -36,7 +36,6 @@
 
 }
 
-
 .singup-container a{
   text-decoration: none;
   color: #1D58B4;
@@ -57,7 +56,7 @@
   background-color: #4581DB;
   border-radius: 36px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  height: 80vh;
+  height: fit-content;
   width: 100%;
   max-width: 22vw;
   text-align: center;
