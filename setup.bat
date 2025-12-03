@@ -4,7 +4,7 @@ TITLE Plataforma Kakoi - Iniciando...
 :: 1. Inicia o Backend (Flask) em uma janela oculta ou minimizada
 echo Iniciando o Servidor (Backend)...
 cd backend
-start /min cmd /k ".\venv\Scripts\activate && flask run --host=0.0.0.0"
+start /min cmd /k ".\venv\Scripts\activate && waitress-serve --host=0.0.0.0 --port=5000 app:app"
 
 :: Volta para a pasta raiz
 cd ..

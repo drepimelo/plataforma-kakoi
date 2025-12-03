@@ -511,7 +511,9 @@ def manage_tarefas(current_user):
         db.session.commit()
         return jsonify({'message': 'Tarefa criada', 'id': nova_tarefa.id}), 201
 
-    tarefas = Tarefa.query.filter_by(user_id=current_user.id).all()
+    # Adicionamos .order_by(Tarefa.data_prazo.asc())
+    # asc() significa Ascendente (Crescente): da data mais antiga para a mais nova
+    tarefas = Tarefa.query.filter_by(user_id=current_user.id).order_by(Tarefa.data_prazo.asc()).all()
     output = [{
         'id': t.id, 
         'conteudo': t.conteudo, 
@@ -561,7 +563,8 @@ def manage_avisos(current_user):
         db.session.commit()
         return jsonify({'message': 'Aviso criado', 'id': novo_aviso.id}), 201
 
-    avisos = Aviso.query.filter_by(user_id=current_user.id).all()
+    avisos = Aviso.query.filter_by(user_id=current_user.id).order_by(Aviso.data_prazo.asc()).all()
+    
     output = [{
         'id': a.id, 
         'conteudo': a.conteudo,
@@ -619,6 +622,84 @@ def delete_account(current_user):
     db.session.commit()
     return jsonify({'message': 'Conta excluída!'})
 
+
+@app.route("/database/download", methods=['GET'])
+@token_required
+def download_database(current_user):
+    try:
+        # Opção 1: Procura na mesma pasta do app.py
+        caminho_raiz = os.path.join(app.root_path, 'database.db')
+        
+        # Opção 2: Procura na pasta 'instance' (comum em Flask mais novo)
+        caminho_instance = os.path.join(app.root_path, 'instance', 'database.db')
+
+        caminho_final = None
+
+        if os.path.exists(caminho_raiz):
+            caminho_final = caminho_raiz
+        elif os.path.exists(caminho_instance):
+            caminho_final = caminho_instance
+        
+        # Se não achou em lugar nenhum
+        if not caminho_final:
+            print(f"ERRO DE DEBUG: O arquivo não está em {caminho_raiz} nem em {caminho_instance}")
+            return jsonify({'message': 'Arquivo database.db não encontrado no servidor.'}), 404
+
+        # Envia o arquivo encontrado
+        return send_file(
+            caminho_final,
+            as_attachment=True,
+            download_name=f"backup_kakoi_{date.today()}.db",
+            mimetype="application/x-sqlite3"
+        )
+
+    except Exception as e:
+        print(traceback.format_exc())
+        return jsonify({'message': 'Erro ao baixar banco de dados', 'error': str(e)}), 500
+
+@app.route("/database/upload", methods=['POST'])
+@token_required
+def upload_database(current_user):
+    try:
+        if 'file' not in request.files:
+            return jsonify({'message': 'Nenhum arquivo enviado'}), 400
+        
+        file = request.files['file']
+        
+        if file.filename == '':
+            return jsonify({'message': 'Nenhum arquivo selecionado'}), 400
+
+        if not file.filename.endswith('.db'):
+            return jsonify({'message': 'Formato inválido. Envie um arquivo .db'}), 400
+
+        # --- LÓGICA DE CAMINHO INTELIGENTE ---
+        
+        # 1. Define os caminhos possíveis
+        caminho_instance_dir = os.path.join(app.root_path, 'instance')
+        caminho_instance_file = os.path.join(caminho_instance_dir, 'database.db')
+        caminho_raiz = os.path.join(app.root_path, 'database.db')
+
+        # 2. Decide onde salvar
+        target_path = caminho_instance_file # Padrão: pasta instance
+
+        # Se o arquivo já existe na raiz, sobrescreve na raiz (caso raro)
+        if os.path.exists(caminho_raiz):
+            target_path = caminho_raiz
+        # Se não, garante que a pasta instance existe antes de salvar lá
+        elif not os.path.exists(caminho_instance_dir):
+            os.makedirs(caminho_instance_dir)
+
+        print(f"DEBUG: Salvando backup em: {target_path}") # Para sabermos no terminal
+
+        # 3. Salva o arquivo (sobrescrevendo o antigo)
+        file.save(target_path)
+        
+        return jsonify({'message': 'Banco de dados restaurado com sucesso! A página será recarregada.'})
+
+    except Exception as e:
+        print(traceback.format_exc())
+        return jsonify({'message': 'Erro ao restaurar banco', 'error': str(e)}), 500
+    
 if __name__ == "__main__":
 
     with app.app_context():

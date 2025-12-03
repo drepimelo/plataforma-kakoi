@@ -118,3 +118,23 @@
 .logout-btn { background-color: #f8d7da; color: #721c24; } /* Vermelho suave */
 
 .action-btn:hover { opacity: 0.9; }
+
+.restore-btn {
+    background-color: #17a2b8; /* Azul ciano */
+    color: white;
+    border: none;
+    /* Cursor pointer é importante pois é um <label> agindo como botão */
+    cursor: pointer; 
+    display: block; /* Garante que ocupe a largura como os outros */
+}
+
+.restore-btn:hover {
+    background-color: #138496;
+}
+
+/* Adicione margem para separar as seções */
+.pref-actions h3 {
+    font-size: 16px;
+    color: #666;
+    margin: 10px 0 5px 0;
+}

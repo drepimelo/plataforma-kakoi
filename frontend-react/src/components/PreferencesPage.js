@@ -72,6 +72,7 @@ function PreferencesPage() {
     localStorage.removeItem('token');
     window.location.href = '/login';
   };
+  
 
   // Componente auxiliar para renderizar uma linha de opção
   const renderOption = (label, fieldKey, value) => (
@@ -97,6 +98,67 @@ function PreferencesPage() {
       </div>
     </div>
   );
+
+  const handleBackupDatabase = async () => {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch('http://127.0.0.1:5000/database/download', {
+        headers: { 'x-access-token': token },
+      });
+      if (!response.ok) throw new Error('Falha ao baixar backup.');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      // Define o nome com a data de hoje
+      const date = new Date().toISOString().split('T')[0];
+      link.setAttribute('download', `backup_kakoi_${date}.db`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  // 2. Função para RESTAURAR (Upload)
+  const handleRestoreDatabase = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (!window.confirm('PERIGO: Isso irá APAGAR todos os dados atuais e substituí-los pelo backup. Tem certeza absoluta?')) {
+        // Limpa o input se o usuário cancelar
+        event.target.value = ''; 
+        return;
+    }
+
+    const token = localStorage.getItem('token');
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch('http://127.0.0.1:5000/database/upload', {
+        method: 'POST',
+        headers: { 
+            'x-access-token': token 
+            // Nota: Não defina Content-Type aqui, o navegador faz isso sozinho para FormData
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) throw new Error(data.message || 'Erro ao restaurar.');
+
+      alert('Sucesso! O sistema foi restaurado. A página será recarregada.');
+      window.location.reload(); // Recarrega para pegar os novos dados
+
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+  
 
   return (
     <div className="preferences-page">
@@ -138,7 +200,26 @@ function PreferencesPage() {
 
         {/* Ações de Perigo / Download */}
         <div className="pref-actions">
-            <button className="action-btn download-btn" onClick={() => alert('Em breve')}>Baixar banco de dados</button>
+          <hr />
+            <h3>Gerenciamento de Dados</h3>
+            
+            {/* Botão de Backup */}
+            <button className="action-btn download-btn" onClick={handleBackupDatabase}>
+                ⬇ Fazer Backup do Banco de Dados (.db)
+            </button>
+
+            {/* Botão de Restore (Truque do input invisível) */}
+            <label className="action-btn restore-btn">
+                ⬆ Restaurar Backup (Upload)
+                <input 
+                    type="file" 
+                    accept=".db" 
+                    style={{ display: 'none' }} 
+                    onChange={handleRestoreDatabase} 
+                />
+            </label>
+
+        <hr />
             <button className="action-btn delete-btn" onClick={handleDeleteAccount}>Deletar conta</button>
             <button className="action-btn logout-btn" onClick={handleLogout}>Sair da conta</button>
         </div>
