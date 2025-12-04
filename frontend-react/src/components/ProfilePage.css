@@ -1,7 +1,7 @@
 .profile-page{
   margin-top: 1.5vh;
   max-width: 90vw;
-  height: 80vh;
+  height: fit-content;
   right: 0;
   top: 50%;
   background-color: #4581DB;

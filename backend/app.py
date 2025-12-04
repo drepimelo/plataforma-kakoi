@@ -362,7 +362,10 @@ def get_estatisticas(current_user):
             Funcionario.sexo, 
             func.count(Funcionario.id)
         ).group_by(Funcionario.sexo).all()
-        contagem_sexo = {sexo: count for sexo, count in contagem_sexo_query}
+        contagem_sexo = {
+            (sexo if sexo is not None else 'Não informado'): count 
+            for sexo, count in contagem_sexo_query
+        }
         # 2. Contagem por Tipo de Vínculo (já tínhamos)
         contagem_vinculo_query = db.session.query(
             Funcionario.tipo_vinculo, 
